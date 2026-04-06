@@ -1,5 +1,5 @@
-# JackBot AI - Simple Ticket System with ChatGPT
-# Run: python bot.py
+# JackBot AI - Working Ticket System with ChatGPT
+# Run this in Command Prompt: python bot.py
 
 import os
 import discord
@@ -25,9 +25,9 @@ intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
-active_tickets = {}
+active_tickets = {}  # thread_id : user_id
 
-BAD_WORDS = ["kill", "rape", "suicide", "nigger", "faggot", "retard", "cunt", "bitch"]
+BAD_WORDS = ["kill", "rape", "suicide", "nigger", "faggot", "retard", "cunt", "bitch", "whore"]
 
 def is_bad_message(text: str) -> bool:
     text = text.lower()
@@ -41,7 +41,8 @@ class TicketView(discord.ui.View):
     async def open_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         thread = await interaction.channel.create_thread(
             name=f"Ticket-{interaction.user.name}",
-            type=discord.ChannelType.private_thread
+            type=discord.ChannelType.private_thread,
+            reason=f"Ticket by {interaction.user}"
         )
 
         active_tickets[thread.id] = interaction.user.id
@@ -50,13 +51,13 @@ class TicketView(discord.ui.View):
         await thread.send(
             f"**Hello {interaction.user.mention}!**\n"
             "You are now chatting with **JackBot AI**.\n"
-            "Ask me anything!\n\n"
+            "Ask me anything! I'm here to help.\n\n"
             "**Type `close` to close this ticket.**"
         )
 
         await interaction.response.send_message("✅ Ticket created! Go to the thread.", ephemeral=True)
 
-@tree.command(name="setup_tickets", description="Create ticket button")
+@tree.command(name="setup_tickets", description="Create the ticket panel")
 @app_commands.default_permissions(administrator=True)
 async def setup_tickets(interaction: discord.Interaction):
     embed = discord.Embed(
@@ -66,46 +67,54 @@ async def setup_tickets(interaction: discord.Interaction):
     )
     view = TicketView()
     await interaction.channel.send(embed=embed, view=view)
-    await interaction.response.send_message("✅ Done!", ephemeral=True)
+    await interaction.response.send_message("✅ Ticket panel created!", ephemeral=True)
 
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot or not isinstance(message.channel, discord.Thread):
         return
+
     if message.channel.id not in active_tickets:
         return
 
+    # Close ticket
     if message.content.lower().strip() == "close":
         await message.channel.send("Closing ticket...")
         await message.channel.delete()
         active_tickets.pop(message.channel.id, None)
         return
 
+    # Bad message detection
     if is_bad_message(message.content):
         owner = await bot.fetch_user(OWNER_ID)
         if owner:
-            await owner.send(f"⚠️ Bad message in ticket {message.channel.mention}\nUser: {message.author}\nMessage: {message.content}")
+            await owner.send(
+                f"**⚠️ BAD MESSAGE DETECTED**\n"
+                f"**User:** {message.author} ({message.author.id})\n"
+                f"**Ticket:** {message.channel.mention}\n"
+                f"**Message:** {message.content}"
+            )
         await message.channel.send("⚠️ Please be respectful.")
         return
 
     # ChatGPT Response
-    await message.channel.send("🤖 Thinking...", delete_after=1.5)
+    await message.channel.send("🤖 JackBot AI is thinking...", delete_after=1.5)
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",   # You can change to "gpt-4o" if you want better answers
+            model="gpt-4o-mini",   # Use "gpt-4o" for better quality
             messages=[
-                {"role": "system", "content": "You are JackBot AI, a helpful and friendly assistant."},
+                {"role": "system", "content": "You are JackBot AI, a helpful and friendly Discord assistant."},
                 {"role": "user", "content": message.content}
             ],
             temperature=0.7,
-            max_tokens=700
+            max_tokens=800
         )
         reply = response.choices[0].message.content
         await message.channel.send(reply)
 
     except Exception as e:
-        await message.channel.send("Sorry, I'm having trouble right now.")
+        await message.channel.send("Sorry, I'm having trouble responding right now.")
 
 @bot.event
 async def on_ready():
