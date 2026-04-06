@@ -61,7 +61,7 @@ class TicketView(discord.ui.View):
 @app_commands.default_permissions(administrator=True)
 async def setup_tickets(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="u need help with somthing?",
+        title="Need Help?",
         description="Click the button below to open a ticket and chat with **JackBot AI**.",
         color=0x00ff88
     )
@@ -103,9 +103,9 @@ async def on_message(message: discord.Message):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",   # Change to "gpt-4o" for better answers (costs more)
+            model="gpt-4o-mini",   # Change to "gpt-4o" for better answers
             messages=[
-                {"role": "system", "content": "You are JackBot AI, a helpful, friendly, and fun Discord assistant. You are not ChatGPT. Always respond as JackBot AI."},
+                {"role": "system", "content": "You are JackBot AI, a helpful, friendly, and fun Discord assistant. Always respond as JackBot AI."},
                 {"role": "user", "content": message.content}
             ],
             temperature=0.7,
