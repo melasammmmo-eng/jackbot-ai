@@ -60,7 +60,7 @@ class TicketView(discord.ui.View):
 @app_commands.default_permissions(administrator=True)
 async def setup_tickets(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="Need Help?",
+        title="wanna chat?",
         description="Click below to talk to JackBot AI",
         color=0x00ff88
     )
