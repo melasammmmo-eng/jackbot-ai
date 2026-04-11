@@ -1,4 +1,4 @@
-# JackBot AI - Using GPT-5-mini
+# JackBot AI - Using GPT-4o-mini (stable & cheap)
 
 import os
 import discord
@@ -89,11 +89,11 @@ async def on_message(message: discord.Message):
         owner = await bot.fetch_user(OWNER_ID)
         if owner:
             await owner.send(
-                f"**⚠️ BAD MESSAGE DETECTED**\n"
-                f"**User:** {message.author} ({message.author.id})\n"
-                f"**Ticket:** {message.channel.mention}\n"
-                f"**Message:** {message.content}\n"
-                f"**Time:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                f"⚠️ BAD MESSAGE DETECTED\n"
+                f"User: {message.author} ({message.author.id})\n"
+                f"Ticket: {message.channel.mention}\n"
+                f"Message: {message.content}\n"
+                f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             )
         await message.channel.send("⚠️ Please be respectful.")
         return
@@ -102,7 +102,7 @@ async def on_message(message: discord.Message):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-5-mini",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are JackBot AI, a helpful, friendly, and fun Discord assistant. Keep responses short and clear."},
                 {"role": "user", "content": message.content}
@@ -116,7 +116,7 @@ async def on_message(message: discord.Message):
 
     except Exception as e:
         print(f"OpenAI Error: {e}")
-        await message.channel.send("Sorry, I'm having trouble responding right now. (Check your OpenAI credits)")
+        await message.channel.send("Sorry, I'm having trouble responding right now. (Check your OpenAI billing or API key)")
 
 
 @bot.event
