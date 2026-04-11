@@ -1,4 +1,4 @@
-# JackBot AI - Using GPT-4o-mini (cheaper & fast)
+# JackBot AI - Using GPT-5-mini
 
 import os
 import discord
@@ -32,6 +32,7 @@ def is_bad_message(text: str) -> bool:
     text = text.lower()
     return any(word in text for word in BAD_WORDS)
 
+
 class TicketView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -56,6 +57,7 @@ class TicketView(discord.ui.View):
 
         await interaction.response.send_message("✅ Ticket created! Go to the thread.", ephemeral=True)
 
+
 @tree.command(name="setup_tickets", description="Create the ticket panel")
 @app_commands.default_permissions(administrator=True)
 async def setup_tickets(interaction: discord.Interaction):
@@ -67,6 +69,7 @@ async def setup_tickets(interaction: discord.Interaction):
     view = TicketView()
     await interaction.channel.send(embed=embed, view=view)
     await interaction.response.send_message("✅ Ticket panel created!", ephemeral=True)
+
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -99,14 +102,15 @@ async def on_message(message: discord.Message):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",        # ← This is the cheap & fast model
+            model="gpt-5-mini",
             messages=[
-                {"role": "system", "content": "You are JackBot AI, a helpful, friendly, and fun Discord assistant."},
+                {"role": "system", "content": "You are JackBot AI, a helpful, friendly, and fun Discord assistant. Keep responses short and clear."},
                 {"role": "user", "content": message.content}
             ],
             temperature=0.7,
-            max_tokens=800
+            max_tokens=300
         )
+
         reply = response.choices[0].message.content
         await message.channel.send(reply)
 
@@ -114,8 +118,10 @@ async def on_message(message: discord.Message):
         print(f"OpenAI Error: {e}")
         await message.channel.send("Sorry, I'm having trouble responding right now. (Check your OpenAI credits)")
 
+
 @bot.event
 async def on_ready():
     print(f"✅ JackBot AI is online as {bot.user}")
+
 
 bot.run(DISCORD_TOKEN)
